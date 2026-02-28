@@ -1,8 +1,5 @@
 # Boeing Capstone: UVSD Enrichment Data Pipeline
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/aggressor-FZX/Boeing_Capstone_Data_Pipeline_One)
-[![License](https://img.shields.io/badge/License-Academic-blue)](LICENSE)
-
 ## 🚀 Quick Start
 ```bash
 # Clone the repository
@@ -76,7 +73,14 @@ GitHub automatically renders Mermaid.js diagrams! Click the links below to view 
 ### 📈 **Additional Visualizations**
 5. **[Simple Diagram](Documentation/uvsd_simple_diagram.md)** - Quick overview diagram
 6. **[Complete Diagram](Documentation/uvsd_complete_diagram.md)** - Comprehensive system view
-7. **[Calderon Mermaid DataPrep Diagram](Documentation/Calderon_Mermaid_DataPrep_Diagram.png)** - PNG version of data preparation workflow
+
+### 📍 **Important File Location on Kamiak**
+**Diagram File Location on Kamiak HPC**:
+```
+/data/lab/lapin/UVSD_Enrichment/Documentation/Calderon_Mermaid_DataPrep_Diagram.png
+```
+
+This PNG diagram file shows the complete data preparation workflow and is stored locally on the Kamiak HPC cluster.
 
 ### 📋 **Data Dictionary & Documentation**
 8. **[Data Dictionary](Documentation/data_dictionary/)** - Complete schema documentation with entity relationships
@@ -96,7 +100,9 @@ GitHub automatically renders Mermaid.js diagrams! Click the links below to view 
 - **`results/`**: Generated analysis results
 - **`.cache/`**: System cache files
 
-### Accessing Large Files on Kamiak:
+**Note**: The diagram file `Calderon_Mermaid_DataPrep_Diagram.png` is available on Kamiak at `/data/lab/lapin/UVSD_Enrichment/Documentation/` but excluded from this repository.
+
+### Accessing Large Files & Diagrams on Kamiak:
 ```bash
 # On Kamiak HPC cluster:
 cd /data/lab/lapin/UVSD_Enrichment/
@@ -105,6 +111,9 @@ cd /data/lab/lapin/UVSD_Enrichment/
 ls -lh models/                    # 48GB model directory
 ls -lh instances_train.json       # 399MB training annotations
 ls -lh instances_val.json         # 100MB validation annotations
+
+# Diagram file location:
+ls -lh Documentation/Calderon_Mermaid_DataPrep_Diagram.png  # Data preparation workflow diagram
 ```
 
 ## 🛠️ Setup and Usage
