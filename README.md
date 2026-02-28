@@ -1,5 +1,20 @@
 # Boeing Capstone: UVSD Enrichment Data Pipeline
 
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/aggressor-FZX/Boeing_Capstone_Data_Pipeline_One)
+[![License](https://img.shields.io/badge/License-Academic-blue)](LICENSE)
+
+## 🚀 Quick Start
+```bash
+# Clone the repository
+git clone https://github.com/aggressor-FZX/Boeing_Capstone_Data_Pipeline_One.git
+cd Boeing_Capstone_Data_Pipeline_One
+
+# Explore the documentation
+open Documentation/PROJECT_SUMMARY.md
+open Documentation/architecture/high_level_architecture.md  # View Mermaid diagram
+open Documentation/data_flow/data_flow_diagram.md            # View data flow diagram
+```
+
 ## 📋 Project Overview
 This repository contains the code and documentation for the **Urban Vehicle Scene Detection (UVSD) Enrichment Pipeline**, developed as part of the Boeing Capstone project. The system processes aerial imagery to detect and enrich vehicle instances using advanced vision-language models (InternVL2-26B) on the Kamiak HPC cluster.
 
@@ -48,31 +63,24 @@ Data Validation → InternVL Inference → Attribute Enrichment → Results Stor
 
 ## 📊 Diagrams in This Repository
 
-### 1. **High-Level Architecture Diagram** (`Documentation/architecture/high_level_architecture.md`)
-Mermaid.js diagram showing the complete system architecture with:
-- Data ingestion layer
-- Processing layer with model inference
-- Storage layer for results
-- Infrastructure layer (Kamiak HPC)
-- Monitoring and alerting systems
+GitHub automatically renders Mermaid.js diagrams! Click the links below to view interactive diagrams:
 
-### 2. **Data Flow Diagram** (`Documentation/data_flow/data_flow_diagram.md`)
-Mermaid.js flowchart illustrating:
-- End-to-end data processing pipeline
-- Transformation steps from raw images to enriched results
-- Quality control checkpoints
-- Batch processing workflow
+### 🏗️ **System Architecture Diagrams**
+1. **[High-Level Architecture](Documentation/architecture/high_level_architecture.md)** - Complete system architecture with data ingestion, processing, storage, infrastructure, and monitoring layers
+2. **[System Architecture Diagram](Documentation/architecture/system_architecture_diagram.md)** - Detailed component diagrams with interaction sequences
 
-### 3. **System Architecture Diagram** (`Documentation/architecture/system_architecture_diagram.md`)
-Detailed component diagrams including:
-- Component interaction diagrams
-- Data flow sequence diagrams
-- Geographic partitioning strategies
+### 🔄 **Data Flow Diagrams**
+3. **[Data Flow Diagram](Documentation/data_flow/data_flow_diagram.md)** - End-to-end pipeline from raw imagery to enriched results
+4. **[Visual Data Flow](Documentation/data_flow/visual_data_flow.txt)** - Text-based visualization of the data pipeline
 
-### 4. **Simple & Complete Diagrams** (`Documentation/uvsd_simple_diagram.md`, `Documentation/uvsd_complete_diagram.md`)
-Additional Mermaid.js diagrams providing:
-- Simplified overview for quick understanding
-- Comprehensive view with all system components
+### 📈 **Additional Visualizations**
+5. **[Simple Diagram](Documentation/uvsd_simple_diagram.md)** - Quick overview diagram
+6. **[Complete Diagram](Documentation/uvsd_complete_diagram.md)** - Comprehensive system view
+7. **[Calderon Mermaid DataPrep Diagram](Documentation/Calderon_Mermaid_DataPrep_Diagram.png)** - PNG version of data preparation workflow
+
+### 📋 **Data Dictionary & Documentation**
+8. **[Data Dictionary](Documentation/data_dictionary/)** - Complete schema documentation with entity relationships
+9. **[Project Summary](Documentation/PROJECT_SUMMARY.md)** - Project objectives, scope, and deliverables
 
 ## ⚠️ Large Files on Kamiak (Not Included in Repository)
 
