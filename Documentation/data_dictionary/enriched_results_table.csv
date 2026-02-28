@@ -1,0 +1,14 @@
+table_name,column_name,data_type,description,primary_key,foreign_key,nullable,default_value,constraints,example,notes
+enriched_results,result_id,INTEGER,Unique identifier for enrichment result,TRUE,FALSE,FALSE,,AUTO_INCREMENT,1,Sequential integer
+enriched_results,annotation_id,INTEGER,Reference to annotations table,FALSE,TRUE (annotations.annotation_id),FALSE,,FOREIGN KEY,291438,Links to original annotation
+enriched_results,color,VARCHAR(50),Predicted vehicle color,FALSE,FALSE,FALSE,,CHECK(color IN ('white', 'black', 'red', 'blue', 'gray', 'silver', 'green', 'yellow', 'brown', 'other')),white,Model-predicted color
+enriched_results,angle,VARCHAR(50),Predicted viewing angle,FALSE,FALSE,FALSE,,CHECK(angle IN ('front', 'rear', 'side', 'top-down', 'oblique', 'unknown')),front,Vehicle orientation relative to camera
+enriched_results,description,TEXT,Detailed vehicle description,FALSE,FALSE,FALSE,,,"compact car",Natural language description from model
+enriched_results,time_of_day,VARCHAR(50),Time of day classification,FALSE,FALSE,FALSE,,CHECK(time_of_day IN ('daytime', 'night', 'dawn', 'dusk', 'unknown')),daytime,Lighting condition
+enriched_results,confidence_score,FLOAT,Model confidence score,FALSE,FALSE,FALSE,,CHECK(confidence_score BETWEEN 0 AND 1),0.87,Overall confidence of enrichment
+enriched_results,color_confidence,FLOAT,Color prediction confidence,FALSE,FALSE,FALSE,,CHECK(color_confidence BETWEEN 0 AND 1),0.92,Specific confidence for color
+enriched_results,angle_confidence,FLOAT,Angle prediction confidence,FALSE,FALSE,FALSE,,CHECK(angle_confidence BETWEEN 0 AND 1),0.85,Specific confidence for angle
+enriched_results,model_version,VARCHAR(50),InternVL model version used,FALSE,FALSE,FALSE,,,InternVL2_5-26B,Model version identifier
+enriched_results,processing_timestamp,TIMESTAMP,When enrichment was performed,FALSE,FALSE,FALSE,,CURRENT_TIMESTAMP,2024-01-20 14:30:00,Timestamp of processing
+enriched_results,processing_job_id,VARCHAR(50),SLURM job ID if batch processed,FALSE,FALSE,TRUE,,,20385772,Job identifier from HPC
+enriched_results,notes,TEXT,Additional notes or observations,FALSE,FALSE,TRUE,,,"Vehicle appears to be parked",Human-added notes

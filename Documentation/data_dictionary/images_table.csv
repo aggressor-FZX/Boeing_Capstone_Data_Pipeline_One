@@ -1,0 +1,11 @@
+table_name,column_name,data_type,description,primary_key,foreign_key,nullable,default_value,constraints,example,notes
+images,image_id,INTEGER,Unique identifier for each image,TRUE,FALSE,FALSE,,AUTO_INCREMENT,156736,Sequential integer
+images,file_name,VARCHAR(255),Path to image file relative to dataset root,FALSE,FALSE,FALSE,,,01075_tile_0_0.jpg,Relative path from dataset root
+images,width,INTEGER,Image width in pixels,FALSE,FALSE,FALSE,,CHECK(width > 0),640,Tile width is fixed at 640px
+images,height,INTEGER,Image height in pixels,FALSE,FALSE,FALSE,,CHECK(height > 0),640,Tile height is fixed at 640px
+images,tile_x,INTEGER,X-coordinate of tile origin in original image,FALSE,FALSE,TRUE,,,0,X position in original large image
+images,tile_y,INTEGER,Y-coordinate of tile origin in original image,FALSE,FALSE,TRUE,,,0,Y position in original large image
+images,source_image,VARCHAR(255),Original source image filename,FALSE,FALSE,TRUE,,,original_01075.jpg,Name of the source aerial/satellite image
+images,dataset_split,VARCHAR(10),Dataset split (train/val),FALSE,FALSE,FALSE,,CHECK(dataset_split IN ('train', 'val')),train,Training or validation split
+images,date_created,DATE,Date when image was created/tiled,FALSE,FALSE,TRUE,,CURRENT_DATE,2024-01-15,Date of tiling process
+images,resolution,FLOAT,Image resolution in meters per pixel,FALSE,FALSE,TRUE,,,0.15,Spatial resolution of aerial imagery

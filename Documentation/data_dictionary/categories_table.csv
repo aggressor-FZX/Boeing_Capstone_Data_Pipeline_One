@@ -1,0 +1,9 @@
+table_name,column_name,data_type,description,primary_key,foreign_key,nullable,default_value,constraints,example,notes
+categories,category_id,INTEGER,Unique identifier for category,TRUE,FALSE,FALSE,,AUTO_INCREMENT,0,Sequential integer
+categories,category_name,VARCHAR(50),Name of category,FALSE,FALSE,FALSE,,UNIQUE,vehicle,Currently only "vehicle"
+categories,supercategory,VARCHAR(50),Higher-level category grouping,FALSE,FALSE,TRUE,,,transportation,Broad category
+categories,description,TEXT,Detailed description of category,FALSE,FALSE,TRUE,,,"All types of vehicles including cars, trucks, buses",Human-readable description
+categories,color_code,VARCHAR(7),Hex color code for visualization,FALSE,FALSE,TRUE,,,#FF6B6B,Color for visualization
+categories,min_size,FLOAT,Minimum size in pixels for this category,FALSE,FALSE,TRUE,,CHECK(min_size > 0),1000,Minimum detectable size
+categories,max_size,FLOAT,Maximum size in pixels for this category,FALSE,FALSE,TRUE,,CHECK(max_size > min_size),100000,Maximum expected size
+categories,created_at,TIMESTAMP,When category was defined,FALSE,FALSE,FALSE,,CURRENT_TIMESTAMP,2024-01-01 00:00:00,Timestamp of creation

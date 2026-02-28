@@ -1,0 +1,11 @@
+table_name,column_name,data_type,description,primary_key,foreign_key,nullable,default_value,constraints,example,notes
+annotations,annotation_id,INTEGER,Unique identifier for each annotation,TRUE,FALSE,FALSE,,AUTO_INCREMENT,291438,Sequential integer
+annotations,image_id,INTEGER,Reference to images table,FALSE,TRUE (images.image_id),FALSE,,FOREIGN KEY,156736,Links to parent image
+annotations,category_id,INTEGER,Vehicle category identifier,FALSE,TRUE (categories.category_id),FALSE,,FOREIGN KEY,0,Always 0 for "vehicle" category
+annotations,bbox,TEXT,Bounding box coordinates [x,y,width,height],FALSE,FALSE,FALSE,,JSON array format,"[19.0, 0.0, 313.0, 201.0]",Pixel coordinates in tile
+annotations,segmentation,TEXT,Polygon coordinates as flat list,FALSE,FALSE,FALSE,,JSON array format,"[x1,y1,x2,y2,...]",Flat list of polygon vertices
+annotations,area,FLOAT,Area of bounding box in pixels²,FALSE,FALSE,FALSE,,CHECK(area > 0),62911.99,Calculated area
+annotations,iscrowd,BOOLEAN,Whether annotation is for a crowd,FALSE,FALSE,FALSE,FALSE,,FALSE,Always false for single vehicles
+annotations,confidence,FLOAT,Annotation confidence score,FALSE,FALSE,TRUE,,CHECK(confidence BETWEEN 0 AND 1),0.95,Original detection confidence
+annotations,annotation_source,VARCHAR(50),Source of annotation (manual/auto),FALSE,FALSE,FALSE,,CHECK(annotation_source IN ('manual', 'auto', 'model')),auto,How annotation was created
+annotations,created_at,TIMESTAMP,When annotation was created,FALSE,FALSE,FALSE,,CURRENT_TIMESTAMP,2024-01-15 10:30:00,Timestamp of creation

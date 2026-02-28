@@ -1,0 +1,280 @@
+# UVSD Enrichment Data Dictionary - Complete Summary
+
+## Introduction
+This document provides a comprehensive data dictionary for the UVSD Enrichment project, detailing all data entities, their relationships, and metadata definitions. The dictionary follows a tabular format with separate sheets for each major table.
+
+## Table of Contents
+1. [Images Table](#images-table)
+2. [Annotations Table](#annotations-table)
+3. [Categories Table](#categories-table)
+4. [Enriched Results Table](#enriched-results-table)
+5. [Data Relationships](#data-relationships)
+6. [Data Quality Rules](#data-quality-rules)
+7. [Business Glossary](#business-glossary)
+
+## Images Table
+
+### Overview
+Stores metadata for all tiled images in the dataset. Each record represents a 640x640 pixel tile extracted from original aerial/satellite imagery.
+
+### Schema Definition
+| Column | Type | Required | Description | Example | Constraints |
+|--------|------|----------|-------------|---------|-------------|
+| image_id | INTEGER | ✓ | Unique image identifier | 156736 | Primary Key, Auto-increment |
+| file_name | VARCHAR(255) | ✓ | Relative path to image file | 01075_tile_0_0.jpg | Must exist in filesystem |
+| width | INTEGER | ✓ | Image width in pixels | 640 | Must be 640 for tiles |
+| height | INTEGER | ✓ | Image height in pixels | 640 | Must be 640 for tiles |
+| tile_x | INTEGER |  | X-coordinate in original image | 0 | 0-based indexing |
+| tile_y | INTEGER |  | Y-coordinate in original image | 0 | 0-based indexing |
+| source_image | VARCHAR(255) |  | Original source filename | original_01075.jpg | For traceability |
+| dataset_split | VARCHAR(10) | ✓ | Train/validation split | train | Must be 'train' or 'val' |
+| date_created | DATE |  | Creation date | 2024-01-15 | Default: current date |
+| resolution | FLOAT |  | Meters per pixel | 0.15 | Spatial resolution |
+
+### Business Rules
+1. All tiles must be exactly 640x640 pixels
+2. File names must follow pattern: `{source_id}_tile_{x}_{y}.jpg`
+3. Each image must have corresponding label file
+4. Train/val split must be consistent across dataset
+
+## Annotations Table
+
+### Overview
+Contains vehicle detection annotations with bounding boxes and segmentation polygons. Each annotation corresponds to one vehicle instance in an image.
+
+### Schema Definition
+| Column | Type | Required | Description | Example | Constraints |
+|--------|------|----------|-------------|---------|-------------|
+| annotation_id | INTEGER | ✓ | Unique annotation identifier | 291438 | Primary Key, Auto-increment |
+| image_id | INTEGER | ✓ | Reference to parent image | 156736 | Foreign Key (images.image_id) |
+| category_id | INTEGER | ✓ | Vehicle category identifier | 0 | Foreign Key (categories.category_id) |
+| bbox | TEXT | ✓ | Bounding box [x,y,width,height] | [19.0, 0.0, 313.0, 201.0] | JSON array format |
+| segmentation | TEXT | ✓ | Polygon coordinates | [x1,y1,x2,y2,...] | Flat list of vertices |
+| area | FLOAT | ✓ | Area in pixels² | 62911.99 | Must be positive |
+| iscrowd | BOOLEAN | ✓ | Crowd annotation flag | FALSE | Default: FALSE |
+| confidence | FLOAT |  | Detection confidence | 0.95 | Range: 0-1 |
+| annotation_source | VARCHAR(50) | ✓ | Source of annotation | auto | 'manual', 'auto', or 'model' |
+| created_at | TIMESTAMP | ✓ | Creation timestamp | 2024-01-15 10:30:00 | Default: current timestamp |
+
+### Business Rules
+1. Bounding box coordinates must be within image boundaries
+2. Segmentation polygon must have at least 3 points (6 coordinates)
+3. Area must match bounding box dimensions (within tolerance)
+4. Each image can have 0-N annotations
+5. Confidence score required for model-generated annotations
+
+## Categories Table
+
+### Overview
+Defines vehicle categories for classification. Currently supports a single "vehicle" category but designed for extensibility.
+
+### Schema Definition
+| Column | Type | Required | Description | Example | Constraints |
+|--------|------|----------|-------------|---------|-------------|
+| category_id | INTEGER | ✓ | Unique category identifier | 0 | Primary Key, Auto-increment |
+| category_name | VARCHAR(50) | ✓ | Category name | vehicle | Unique constraint |
+| supercategory | VARCHAR(50) |  | Higher-level grouping | transportation | Optional hierarchy |
+| description | TEXT |  | Detailed description | "All types of vehicles..." | Human-readable |
+| color_code | VARCHAR(7) |  | Hex color for visualization | #FF6B6B | 7-character hex |
+| min_size | FLOAT |  | Minimum size in pixels | 1000 | Must be positive |
+| max_size | FLOAT |  | Maximum size in pixels | 100000 | Must be > min_size |
+| created_at | TIMESTAMP | ✓ | Creation timestamp | 2024-01-01 00:00:00 | Default: current timestamp |
+
+### Business Rules
+1. Category names must be unique
+2. Color codes must be valid 7-character hex (including #)
+3. Size ranges must be logical (min < max)
+4. Default category (ID 0) must always exist
+
+## Enriched Results Table
+
+### Overview
+Stores model-enriched attributes for each vehicle annotation, generated by the InternVL2 vision-language model.
+
+### Schema Definition
+| Column | Type | Required | Description | Example | Constraints |
+|--------|------|----------|-------------|---------|-------------|
+| result_id | INTEGER | ✓ | Unique result identifier | 1 | Primary Key, Auto-increment |
+| annotation_id | INTEGER | ✓ | Reference to annotation | 291438 | Foreign Key (annotations.annotation_id) |
+| color | VARCHAR(50) | ✓ | Predicted vehicle color | white | Predefined color palette |
+| angle | VARCHAR(50) | ✓ | Predicted viewing angle | front | Predefined angle types |
+| description | TEXT | ✓ | Natural language description | "compact car" | Free-text from model |
+| time_of_day | VARCHAR(50) | ✓ | Time of day classification | daytime | Predefined lighting conditions |
+| confidence_score | FLOAT | ✓ | Overall confidence | 0.87 | Range: 0-1 |
+| color_confidence | FLOAT | ✓ | Color prediction confidence | 0.92 | Range: 0-1 |
+| angle_confidence | FLOAT | ✓ | Angle prediction confidence | 0.85 | Range: 0-1 |
+| model_version | VARCHAR(50) | ✓ | Model version used | InternVL2_5-26B | For reproducibility |
+| processing_timestamp | TIMESTAMP | ✓ | Processing timestamp | 2024-01-20 14:30:00 | Default: current timestamp |
+| processing_job_id | VARCHAR(50) |  | SLURM job identifier | 20385772 | For traceability |
+| notes | TEXT |  | Additional observations | "Vehicle appears to be parked" | Optional human notes |
+
+### Business Rules
+1. One-to-one relationship with annotations table
+2. All confidence scores must be between 0 and 1
+3. Color must be from predefined palette
+4. Angle must be from predefined set
+5. Time of day must be from predefined set
+6. Model version must be recorded for reproducibility
+
+## Data Relationships
+
+### Entity Relationship Diagram
+```
+images (1) ────── (many) annotations (1) ────── (1) enriched_results
+      │                                            │
+      └─────────── (many) categories (1) ─────────┘
+```
+
+### Relationship Details
+1. **Images → Annotations**: One-to-Many
+   - One image can contain multiple vehicle annotations
+   - Each annotation belongs to exactly one image
+   - Foreign Key: `annotations.image_id` → `images.image_id`
+
+2. **Annotations → Enriched Results**: One-to-One
+   - Each annotation has exactly one enrichment result
+   - Each enrichment result belongs to exactly one annotation
+   - Foreign Key: `enriched_results.annotation_id` → `annotations.annotation_id`
+
+3. **Categories → Annotations**: One-to-Many
+   - One category can have multiple annotations
+   - Each annotation belongs to exactly one category
+   - Foreign Key: `annotations.category_id` → `categories.category_id`
+
+### Referential Integrity
+- **Cascade Delete**: Deleting an image cascades to its annotations and enriched results
+- **Restrict Update**: Category updates restricted if annotations exist
+- **NotNull Constraints**: All foreign keys are NOT NULL
+
+## Data Quality Rules
+
+### Completeness Rules
+1. All required fields must be populated (NOT NULL constraints)
+2. Image files must exist on filesystem
+3. Annotations must have valid segmentation polygons
+4. Enriched results must have all model outputs
+
+### Consistency Rules
+1. Bounding box coordinates must be within image dimensions
+2. Segmentation area must match bounding box area (within tolerance)
+3. Train/val splits must be mutually exclusive
+4. Timestamps must be chronological
+
+### Accuracy Rules
+1. Annotation coordinates must match visual ground truth
+2. Model confidence scores must be calibrated
+3. Category assignments must be correct
+4. Enriched attributes must be semantically valid
+
+### Validity Rules
+1. All JSON fields must be valid JSON
+2. All numeric fields must be within valid ranges
+3. All string fields must match allowed values
+4. All date/time fields must be valid timestamps
+
+## Business Glossary
+
+### Vehicle Detection Terms
+- **Bounding Box**: Rectangle enclosing a vehicle instance [x, y, width, height]
+- **Segmentation Polygon**: Detailed outline of vehicle boundary
+- **Annotation**: Single vehicle instance with metadata
+- **Tile**: 640x640 pixel sub-image from larger aerial imagery
+
+### Model Enrichment Terms
+- **Color**: Predicted vehicle color (white, black, red, etc.)
+- **Angle**: Viewing angle relative to camera (front, rear, side, etc.)
+- **Description**: Natural language description from model
+- **Time of Day**: Lighting condition (daytime, night, etc.)
+- **Confidence Score**: Model's certainty in prediction (0-1)
+
+### Processing Terms
+- **Inference**: Model prediction on input data
+- **Batch Processing**: Processing multiple images together
+- **SLURM Job**: HPC workload submission
+- **GPU Acceleration**: Using GPU for model computation
+
+### Data Terms
+- **COCO Format**: Common Objects in Context annotation format
+- **YOLO Format**: You Only Look Once annotation format
+- **Train/Val Split**: Division of data for training vs evaluation
+- **Normalized Coordinates**: Coordinates scaled to [0,1] range
+
+## Data Lineage
+
+### Source to Destination
+```
+Raw Aerial Imagery
+    ↓
+Tiling Process (640x640 tiles)
+    ↓
+YOLO Format Annotations (.txt)
+    ↓
+COCO Format Conversion (.json)
+    ↓
+Data Validation (check_instances_vs_images.py)
+    ↓
+Model Inference (internvl_inference.py)
+    ↓
+Enriched Results (CSV)
+    ↓
+Analysis & Reporting
+```
+
+### Transformation Steps
+1. **Spatial Transformation**: Geographic coordinates → pixel coordinates
+2. **Format Conversion**: YOLO → COCO → CSV
+3. **Semantic Enrichment**: Bounding boxes → descriptive attributes
+4. **Quality Enhancement**: Validation → error correction → improvement
+
+## Metadata Management
+
+### Technical Metadata
+- **File Formats**: JPEG, JSON, CSV, TXT
+- **Compression**: Lossy JPEG for images
+- **Encoding**: UTF-8 for text files
+- **Line Endings**: Unix (LF)
+
+### Process Metadata
+- **Processing Date**: When data was processed
+- **Model Version**: Which model generated results
+- **Job ID**: SLURM job identifier
+- **Runtime Parameters**: GPU type, batch size, etc.
+
+### Quality Metadata
+- **Validation Status**: Pass/Fail with reasons
+- **Confidence Scores**: Model certainty metrics
+- **Error Rates**: Processing error percentages
+- **Completeness Scores**: Data completeness metrics
+
+## Version Control
+
+### Data Versioning
+- **Major Version**: Breaking schema changes
+- **Minor Version**: Backward-compatible additions
+- **Patch Version**: Bug fixes and improvements
+
+### Schema Evolution
+1. **Backward Compatibility**: New fields optional, old fields deprecated but retained
+2. **Migration Scripts**: Automated conversion between versions
+3. **Version Metadata**: Stored in dataset metadata file
+4. **Deprecation Policy**: Fields deprecated for 2 versions before removal
+
+## Access Patterns
+
+### Read Patterns
+1. **Batch Reads**: Full dataset for training
+2. **Random Access**: Individual images/annotations
+3. **Range Queries**: By date, confidence, or category
+4. **Aggregate Queries**: Statistics and summaries
+
+### Write Patterns
+1. **Bulk Ingestion**: Initial dataset loading
+2. **Incremental Updates**: New annotations/results
+3. **Correction Updates**: Fixing errors in data
+4. **Append-only**: Historical data preservation
+
+### Query Optimization
+1. **Indexes**: On foreign keys and frequently queried fields
+2. **Partitioning**: By date or dataset split
+3. **Caching**: Frequently accessed metadata
+4. **Materialized Views**: Pre-computed aggregates

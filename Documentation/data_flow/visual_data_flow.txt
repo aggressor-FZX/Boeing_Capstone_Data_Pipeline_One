@@ -1,0 +1,194 @@
+# UVSD Enrichment Visual Data Flow Diagram
+
+## ASCII Art Representation
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DATA INGESTION LAYER                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+         │                            │
+         ▼                            ▼
+┌─────────────────┐        ┌─────────────────────┐
+│  RAW AERIAL     │        │   YOLO FORMAT      │
+│   IMAGERY       │        │   ANNOTATIONS       │
+│                 │        │   (.txt files)     │
+└─────────────────┘        └─────────────────────┘
+         │                            │
+         ▼                            ▼
+┌─────────────────┐        ┌─────────────────────┐
+│   TILING        │        │   FORMAT            │
+│   PROCESS       │        │   CONVERSION        │
+│  (640x640 px)   │        │  (YOLO → COCO)     │
+└─────────────────┘        └─────────────────────┘
+         │                            │
+         ▼                            ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PROCESSED DATA STORAGE                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                    │
+│  │   TILED     │    │   COCO      │    │   DATASET   │                    │
+│  │   IMAGES    │    │   JSON      │    │   CONFIG    │                    │
+│  │             │    │   FILES     │    │   (YAML)    │                    │
+│  └─────────────┘    └─────────────┘    └─────────────┘                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         VALIDATION LAYER                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌────────────────────────────────────────────────────────────────────┐  │
+│  │                 check_instances_vs_images.py                       │  │
+│  │  • Image-Annotation Matching                                        │  │
+│  │  • Bounding Box Validation                                         │  │
+│  │  • Segmentation Integrity Check                                     │  │
+│  │  • Format Compliance Verification                                   │  │
+│  └────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         INFERENCE LAYER                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌────────────────────────────────────────────────────────────────────┐  │
+│  │                   internvl_inference.py                            │  │
+│  │  • Loads InternVL2 Model (26B params)                             │  │
+│  │  • Processes Images + Annotations                                │  │
+│  │  • Generates Enriched Attributes:                                │  │
+│  │      - Vehicle Color                                             │  │
+│  │      - Viewing Angle                                             │  │
+│  │      - Natural Language Description                               │  │
+│  │      - Time of Day Classification                                 │  │
+│  └────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         RESULTS LAYER                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                    │
+│  │   ENRICHED  │    │   ANALYSIS   │    │   VISUAL    │                    │
+│  │   RESULTS    │    │   REPORTS    │    │   CHECKS    │                    │
+│  │   (CSV)      │    │   (Stats)    │    │   (Images)  │                    │
+│  └─────────────┘    └─────────────┘    └─────────────┘                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         DOWNSTREAM APPLICATIONS                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • Vehicle Analytics & Statistics                                         │
+│  • Traffic Pattern Analysis                                              │
+│  • Urban Planning Insights                                               │
+│  • Autonomous Vehicle Training Data                                      │
+│  • Geographic Information Systems (GIS)                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+## Key Data Transformations
+
+1. SPATIAL TRANSFORMATION
+   Original Image Coordinates → Normalized YOLO → Pixel COCO → Enriched CSV
+
+2. FORMAT CONVERSION
+   GeoTIFF/JPEG → 640x640 Tiles → YOLO .txt → COCO JSON → Pandas DataFrame → CSV
+
+3. SEMANTIC ENRICHMENT
+   Bounding Box + Image → InternVL2 Model → Color + Angle + Description + Time
+
+4. QUALITY ASSURANCE
+   Visual Checks → Statistical Validation → Confidence Scoring → Error Correction
+
+## Data Volume Flow
+
+          Raw Images          →          Tiles           →        Annotations
+       (GBs of data)        (16,000+ tiles @ 640x640)   (16,000+ vehicle instances)
+               │                        │                          │
+               └────────────────────────┴────────────────────────┘
+                                          ↓
+                                 Model Inference
+                                          ↓
+                               Enriched Results CSV
+                               (16,000+ enriched records)
+
+## Processing Timeline
+
+DAY 1-2: Data Preparation
+├── Image Tiling
+├── Annotation Conversion
+└── Initial Validation
+
+DAY 3-5: Model Inference
+├── GPU Resource Allocation
+├── Batch Processing
+└── Results Generation
+
+DAY 6-7: Analysis & Reporting
+├── Statistical Analysis
+├── Visualization
+└── Documentation
+
+## System Interfaces
+
+INPUT INTERFACES:
+├── File System: Directory of images + annotations
+├── Command Line: Python scripts with config parameters
+└── SLURM: Batch job submission for HPC
+
+OUTPUT INTERFACES:
+├── CSV Files: Enriched results for analysis
+├── Log Files: Processing logs for debugging
+├── Visual Reports: Quality check images
+└── Database: Optional SQL storage for querying
+
+CONFIGURATION INTERFACES:
+├── YAML Files: Dataset configuration
+├── JSON Files: Model parameters
+└── Environment Variables: System settings
+
+## Error Handling Flow
+
+                    ┌─────────────┐
+                    │   ERROR     │
+                    │   DETECTED  │
+                    └─────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  LOG ERROR  │
+                    │   TO FILE   │
+                    └─────────────┘
+                           │
+                    ┌─────┴─────┐
+                    ▼           ▼
+           ┌─────────────┐ ┌─────────────┐
+           │  RECOVERABLE│ │  FATAL      │
+           │   ERROR?    │ │   ERROR?    │
+           └─────────────┘ └─────────────┘
+                  │               │
+           ┌─────┴─────┐         │
+           ▼           ▼         ▼
+    ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+    │  RETRY WITH  │ │  SKIP &     │ │  ABORT &    │
+    │  BACKOFF     │ │  CONTINUE   │ │  NOTIFY     │
+    └─────────────┘ └─────────────┘ └─────────────┘
+
+## Data Quality Gates
+
+GATE 1: INPUT VALIDATION
+├── File existence checks
+├── Format compliance
+└── Size/type validation
+
+GATE 2: PROCESS VALIDATION
+├── Annotation-image matching
+├── Coordinate bounds checking
+└── Segmentation integrity
+
+GATE 3: OUTPUT VALIDATION
+├── Model confidence thresholds
+├── Semantic consistency
+└── Statistical outliers detection
+
+GATE 4: FINAL REVIEW
+├── Manual sampling
+├── Cross-validation
+└── Performance metrics
